@@ -1,0 +1,7 @@
+    def raporsec(self):
+        a = self.cursor.execute("select reportname from reports")
+        while True:
+            row = self.cursor.fetchone()
+            if not row:
+                break
+            print("Rapor: ", row['reportname'])
