@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pypyodbc
+import time
 
 
 class Ui_MainWindow(object):
@@ -36,6 +37,7 @@ class Ui_MainWindow(object):
 
             self.mesaj()
             self.tabmenuaktif()
+            self.raporsec()
 
         except:
             self.mesaj("UYARI" , "SQL Bağlantısı Kurulamadı")
@@ -81,9 +83,54 @@ class Ui_MainWindow(object):
                 self.mesaj("Uyarı" , "İşlem Tamamlandı")
         else:
             self.mesaj("Uyarı" ,"HATA")
-
-
-
+    def verigonder(self):
+        try:
+            baslangictarihi = self.lineEdit_7.text()
+            bitistarihi = self.lineEdit_8.text()
+            self.cursor.execute("UPDATE OrderHeaders set SendOk=0 WHERE OrderDateTime > '{}' AND OrderDateTime < '{}';".format(baslangictarihi,bitistarihi))
+            self.cursor.execute("UPDATE OrderTransactions set SendOk=0 WHERE OrderDateTime > '{}' AND OrderDateTime < '{}';".format(baslangictarihi,bitistarihi))
+            self.cursor.execute("UPDATE OrderPayments set SendOk=0 WHERE PaymentDateTime > '{}' AND PaymentDateTime < '{}';".format(baslangictarihi,bitistarihi))
+            self.mesaj("Uyarı" , "Veri Gönderimi İçin İşlem Sağlandı")
+        except:
+            self.mesaj("Uyarı", "Hata oluştu tekrar deneyin")
+    def yoneticigiris(self):
+        zaman = time.localtime()
+        yil = zaman [0] + 2
+        ay = zaman [1] + 3
+        gun = zaman [2] + 4
+        ay2 = str(ay)
+        if (len(ay2) == 1):
+            ay3 = str("0" + ay2)
+        else:
+            ay3 = ay2
+        self.mesaj("Yönetici Şifre Panel" ,"Yönetici Şifre : {} {} {}".format(yil,ay3,gun))
+    def ecrislemler(self):
+        zaman = time.localtime()
+        yil = str(zaman [0])
+        ay = zaman [1] + 2
+        gun = zaman [2] + 3
+        ay2 = str(ay)
+        if (len(ay2)==1):
+            ay3 = str("0"+ay2)
+        else:
+            ay3 = ay2
+        yil2 = yil [2:]
+        self.mesaj("ECR İşlemler Şifre Panel" , "ECR İşlemler Şifre : {} {} {}".format(ay3,gun,yil2))
+    def raporsec(self):
+        raporlar = self.cursor.execute("select reportname from reports")
+        while True:
+            row = raporlar.fetchone()
+            if not row:
+                break
+            for i in row:
+                list(i)
+                self.comboBox_2.addItem(i[0:],i)
+    def secilenraporudegis(self):
+        seviye = self.comboBox.currentText()
+        rapor = self.comboBox_2.currentText()
+        self.cursor.execute("update reports set SecurityLevel={} where ReportName='{}' ".format(seviye,rapor))
+        self.cursor.commit()
+        self.mesaj("Uyarı","Seçilen raporun Seviyesi Değiştirildi")
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -125,6 +172,14 @@ class Ui_MainWindow(object):
         self.pushButton.setGeometry(QtCore.QRect(110, 200, 311, 23))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.clicked.connect(self.baglan)
+        self.yoneticibuton = QtWidgets.QPushButton(self.tab)
+        self.yoneticibuton.setGeometry(QtCore.QRect(0,10,85,23))
+        self.yoneticibuton.setObjectName("Yoneticibuton")
+        self.yoneticibuton.clicked.connect(self.yoneticigiris)
+        self.ecrbuton = QtWidgets.QPushButton(self.tab)
+        self.ecrbuton.setGeometry(QtCore.QRect(0,35,85,23))
+        self.ecrbuton.setObjectName("ECRbuton")
+        self.ecrbuton.clicked.connect(self.ecrislemler)
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -169,6 +224,7 @@ class Ui_MainWindow(object):
         self.pushButton_6 = QtWidgets.QPushButton(self.tab_3)
         self.pushButton_6.setGeometry(QtCore.QRect(50, 180, 381, 23))
         self.pushButton_6.setObjectName("pushButton_6")
+        self.pushButton_6.clicked.connect(self.secilenraporudegis)
         self.label_10 = QtWidgets.QLabel(self.tab_3)
         self.label_10.setGeometry(QtCore.QRect(50, 90, 81, 20))
         self.label_10.setObjectName("label_10")
@@ -200,9 +256,11 @@ class Ui_MainWindow(object):
         self.lineEdit_7 = QtWidgets.QLineEdit(self.tab_5)
         self.lineEdit_7.setGeometry(QtCore.QRect(220, 70, 113, 20))
         self.lineEdit_7.setObjectName("lineEdit_7")
+        self.lineEdit_7.setPlaceholderText("2019-12-30")
         self.lineEdit_8 = QtWidgets.QLineEdit(self.tab_5)
         self.lineEdit_8.setGeometry(QtCore.QRect(220, 110, 113, 20))
         self.lineEdit_8.setObjectName("lineEdit_8")
+        self.lineEdit_8.setPlaceholderText("2019-12-30")
         self.label_7 = QtWidgets.QLabel(self.tab_5)
         self.label_7.setGeometry(QtCore.QRect(120, 70, 91, 20))
         self.label_7.setObjectName("label_7")
@@ -266,7 +324,8 @@ class Ui_MainWindow(object):
         self.pushButton_5.setText(_translate("MainWindow", "Veri Gönder"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Veri Gönder"))
         #self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "Banka"))
-
+        self.ecrbuton.setText(_translate("MainWindows", "ECR Şifre"))
+        self.yoneticibuton.setText(_translate("MainWindows","Yönetici Şifre"))
 
 
 
