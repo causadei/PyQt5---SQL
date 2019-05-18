@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pypyodbc
 import time
-from PyQt5 import QtSql
 
 
 
@@ -349,6 +348,7 @@ class Ui_MainWindow(object):
         ###############################################################TAB6
         self.tab_6 = QtWidgets.QWidget()
         self.tab_6.setObjectName("tab_6")
+        self.tab_6.setEnabled(False)
         self.label_11 = QtWidgets.QLabel(self.tab_6)
         self.label_11.setGeometry(QtCore.QRect(120, 5, 81, 20))
         self.label_11.setObjectName("label_11")
